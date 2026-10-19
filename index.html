@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Empire Zorius</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{
+  --bg:#05060a;
+  --accent:#06f6d7;
+  --accent2:#7c5cff;
+  --muted:#98a0b3;
+  --mono:'Share Tech Mono', monospace;
+  --ui: 'Inter', system-ui, sans-serif;
+}
+html,body{ height:100%; margin:0; color:#e6eef6; font-family:var(--ui); -webkit-font-smoothing:antialiased }
+body{
+  background:
+    linear-gradient(rgba(5,6,10,0.82), rgba(5,6,10,0.92)),
+    url('https://files.catbox.moe/oyk3lq.jpg') center/cover fixed no-repeat;
+}
+*{box-sizing:border-box}
+.topbar { display:flex; align-items:center; background:transparent; padding:8px 12px; }
+.menu-btn { font-size:22px; background:none; border:none; color:var(--accent); cursor:pointer; margin-right:10px; }
+.title-top { font-family: var(--mono); font-size:18px; font-weight:600; color:var(--accent); }
+.sidebar { position:fixed; top:0; left:-240px; width:240px; height:100%; background:#0c1016; border-right:1px solid rgba(255,255,255,0.08); padding:60px 16px; transition:left 0.3s ease; z-index:999; }
+.sidebar ul { list-style:none; padding:0; margin:0; }
+.sidebar li { margin-bottom:14px; }
+.sidebar a { color:#e6eef6; text-decoration:none; font-size:15px; display:flex; align-items:center; padding:6px 4px; border-radius:6px; }
+.sidebar a i { margin-right: 8px; color: var(--accent); width: 18px; text-align: center; }
+.sidebar a:hover { background:rgba(255,255,255,0.05); }
+.sidebar.active { left:0; }
+.submenu { display: none; list-style: none; padding-left: 20px; margin-top: 8px; }
+.submenu li { margin-bottom: 10px; }
+.submenu a { font-size: 14px; color: #cfd8e3; }
+.submenu a i { color: var(--accent); }
+.submenu.show { display: block; }
+.robot-title-normal { font-family: var(--ui); font-size: 18px; font-weight: 600; color: #e6eef6; text-align: center; margin-top: 8px; }
+.wrap{ display:grid; grid-template-columns:420px 1fr; gap:22px; padding:28px; height:100vh }
+.robot-box{ background:radial-gradient(circle at 30% 20%, rgba(124,92,255,0.06), transparent 20%), linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005)); border-radius:10px; padding:14px; margin-bottom:12px; border:1px solid rgba(255,255,255,0.02); width:280px; margin-left:auto; margin-right:auto; backdrop-filter: blur(3px); }
+.robot-face { width:120px; height:120px; border-radius:50%; background:#000; display:flex; align-items:center; justify-content:center; font-size:56px; margin:0 auto; box-shadow:0 0 15px rgba(0,0,0,0.6); overflow:hidden; }
+.form-label{ font-size:12px; font-weight:500; margin:12px 0 6px; display:block; text-align:left; width:280px; margin-left:auto; margin-right:auto; }
+.input, select, .btn { width:280px; margin:0 auto; padding:10px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:rgba(7,16,24,0.85); color:#7b8a97; font-size:14px; outline:none; display:block; backdrop-filter: blur(4px); }
+.input::placeholder{color: #7b8a97}
+.btn{ margin-top:18px; padding:12px 14px; background:linear-gradient(90deg,var(--accent),var(--accent2)); border:0; border-radius:10px; color:#041018; font-weight:800; cursor:pointer; font-size:15px }
+.status{ margin-top:12px; font-size:13px; color:var(--muted); min-height:20px; width:280px; margin-left:auto; margin-right:auto; }
+.small{ font-size:12px; color:var(--muted); margin-top:6px; width:280px; margin-left:auto; margin-right:auto; text-align:center; }
+main.empty{background:transparent}
+.overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.4); display:none; z-index:998; }
+.overlay.active { display:block; }
+
+#lockModal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  background: linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.85));
+}
+.lock-card {
+  width: 92%;
+  max-width: 520px;
+  background: rgba(7,16,24,0.95);
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  backdrop-filter: blur(6px);
+}
+.lock-card h2 { font-family: var(--mono); color:var(--accent); margin:0 0 8px; font-size:20px; }
+.lock-card p { color:var(--muted); font-size:14px; margin:0 0 12px; }
+.btn-full {
+  width: 100% !important;
+  display: block;
+  margin: 8px 0;
+  padding:14px 16px;
+  font-size:15px;
+  border-radius:10px;
+}
+.progress-wrapper {
+  width: 100%;
+  background: #1a1f2b;
+  border-radius: 8px;
+  height: 16px;
+  margin-top: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+#progressBar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg,var(--accent),var(--accent2));
+  transition: width 0.5s ease;
+}
+.small-hint { font-size:12px; color:#9fb1c7; margin-top:10px; }
+
+@media (max-width:860px){ .wrap{grid-template-columns:1fr;padding:16px} .robot-face{height:100px;width:100px} .sidebar{width:200px} }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <button class="menu-btn" id="menuToggle" aria-label="Buka menu">&#9776;</button>
+  <div class="title-top">Empire Zorius</div>
+</header>
+
+<!-- LOCK MODAL -->
+<div id="lockModal" role="dialog" aria-modal="true" aria-labelledby="lockTitle">
+  <div class="lock-card" id="lockCard" aria-live="polite">
+    <h2 id="lockTitle">Akses Dikunci</h2>
+    <p>Ini Web 100% garatis , oleh karena itu pungguna wajib join grub dan sher link web ini ke teman² kalian terlebih dahulu sebelum memakai web- ini, setelah join dan sher otomatis kunci terbuka✅:</p>
+    
+    <button id="joinBtn" class="btn btn-full">1. Join Chanel WhatsApp</button>
+    <button id="shareBtn" class="btn btn-full">2. Share Website</button>
+
+    <div class="progress-wrapper" aria-hidden="false">
+      <div id="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+    </div>
+    <div class="small-hint" id="lockStatus">0% selesai</div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebarMenu" aria-hidden="true">
+  <ul>
+    <li class="has-submenu">
+      <a href="javascript:void(0)" id="contactToggle"><i class="fa-solid fa-headset"></i> Contact Admin <i class="fa-solid fa-chevron-down" style="margin-left:auto; font-size:12px;"></i></a>
+      <ul class="submenu" id="contactSubmenu">
+        <li><a href="https://t.me/Yakuza_ma" target="_blank" rel="noopener"><i class="fa-brands fa-telegram"></i> Telegram</a></li>
+      </ul>
+    </li>
+
+    <li class="has-submenu">
+      <a href="javascript:void(0)" id="infoToggle"><i class="fa-solid fa-newspaper"></i> Info Website Terbaru <i class="fa-solid fa-chevron-down" style="margin-left:auto; font-size:12px;"></i></a>
+      <ul class="submenu" id="infoSubmenu">
+        <li><a href="https://whatsapp.com/channel/0029VbCy1QpEFeXiFhqbsu1r" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> WhatsApp Channel</a></li>
+      </ul>
+    </li>
+
+    <li class="has-submenu">
+      <a href="javascript:void(0)" id="jasaToggle"><i class="fa-solid fa-code"></i> Jasa Pembuatan Web <i class="fa-solid fa-chevron-down" style="margin-left:auto; font-size:12px;"></i></a>
+      <ul class="submenu" id="jasaSubmenu">
+        <li><a href="https://t.me/Yakuza_ma" target="_blank" rel="noopener"><i class="fa-brands fa-telegram"></i> Telegram</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+<div class="overlay" id="overlay" aria-hidden="true"></div>
+
+<div class="robot-box" aria-hidden="false">
+  <div class="robot-face"><img src="https://files.catbox.moe/oyk3lq.jpg" alt="Logo Robot" style="max-height:100%; max-width:100%; object-fit:cover;"></div>
+  <div class="robot-title-normal">Empire Zorius</div>
+</div>
+
+<label class="form-label" for="numero">Nomor WhatsApp yang diblokir</label>
+<input type="tel" id="numero" class="input" placeholder="+242xxxxxxxxxxx" inputmode="tel" aria-required="true" />
+<label class="form-label" for="alasan">Pilih Opsi Band</label>
+<select id="alasan" class="input" aria-required="true">
+  <option value="">-- Pilih alasan --</option>
+  <option value="Opsi Spam">Opsi Spam</option>
+  <option value="Opsi Permanen">Opsi Permanen</option>
+</select>
+<button class="btn" id="sendBtn" aria-label="Kirim Banding">KIRIM BANDING</button>
+<div class="status" id="statusArea" aria-live="polite"></div>
+<div class="small">Saat tombol ditekan: sistem akan mencoba membuka aplikasi Gmail (Android). Silahkan kirim pesannya lalu tunggu balasan WhatsApp.</div>
+<main class="empty" aria-hidden="true"></main>
+
+<script>
+/* ================= Lock progress bar logic ================= */
+const lockModal = document.getElementById('lockModal');
+const lockStatus = document.getElementById('lockStatus');
+const joinBtn = document.getElementById('joinBtn');
+const shareBtn = document.getElementById('shareBtn');
+const progressBar = document.getElementById('progressBar');
+
+let joined = false;
+let shared = false;
+
+function updateProgress(){
+  let percent = 0;
+  if(joined) percent += 50;
+  if(shared) percent += 50;
+  progressBar.style.width = percent + '%';
+  progressBar.setAttribute('aria-valuenow', String(percent));
+  lockStatus.textContent = percent + '% selesai';
+  if(percent === 100){
+    setTimeout(()=>{ 
+      const music = document.getElementById('bg-music');
+      if(music) music.play().catch(()=>{});
+      lockModal.style.display = "none"; 
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    },600);
+  }
+}
+
+joinBtn.addEventListener('click', ()=>{
+  window.open("https://whatsapp.com/channel/0029VbCy1QpEFeXiFhqbsu1r", "_blank");
+  joined = true;
+  updateProgress();
+});
+
+shareBtn.addEventListener('click', ()=>{
+  const siteUrl = "https://t.me/Yakuza_ma";
+  const message =
+`*NOS SPÉCIALITÉS ET SERVICES*
+> Share apk mood
+> Share Function Bug
+> Share method WhatsApp 
+> Share Base/Script
+> Share Website
+> Share Code Html
+> connection au bot actifs 
+> 100% gratuit 
+> Permanen
+> Work 100%
+Link : ${siteUrl}`;
+
+  const waUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(message);
+  window.open(waUrl, "_blank");
+
+  shared = true;
+  updateProgress();
+});
+
+lockModal.style.display = "flex";
+document.documentElement.style.overflow = 'hidden';
+document.body.style.overflow = 'hidden';
+
+/* ================= 80 TEMPLATES DEBAN (court / moyen / long) ================= */
+const DEBAN_TEMPLATES = [
+/* ---------- COURTS (30) ---------- */
+`Halo tim WhatsApp, nomor ([NOMOR]) saya diblokir padahal tidak melanggar aturan. Mohon dibuka kembali. Terima kasih.`,
+`Selamat siang, saya banding untuk akun ([NOMOR]) yang terblokir. Saya tidak pernah spam. Mohon ditinjau.`,
+`Kepada WhatsApp, nomor ([NOMOR]) saya diblokir permanen. Saya hanya chat dengan keluarga. Tolong bantu buka.`,
+`Halo support, akun ([NOMOR]) saya terblokir tanpa alasan. Mohon bantuannya untuk membuka kembali.`,
+`Tim WhatsApp, saya minta banding nomor ([NOMOR]). Saya tidak melanggar aturan. Mohon dibuka.`,
+`Halo, nomor ([NOMOR]) saya diblokir. Saya hanya kirim undangan pernikahan ke saudara. Mohon dibuka kembali.`,
+`Selamat pagi tim WhatsApp. Saya banding akun ([NOMOR]) yang diblokir. Saya tidak spam. Terima kasih.`,
+`Kepada WhatsApp Support, nomor ([NOMOR]) saya terblokir. Saya hanya chat biasa. Mohon bantu buka blokirnya.`,
+`Halo tim WhatsApp, saya banding untuk nomor ([NOMOR]). Saya tidak pernah melanggar. Mohon ditinjau kembali.`,
+`Tim WhatsApp, akun ([NOMOR]) saya diblokir permanen. Saya hanya chat dengan teman kerja. Mohon dibuka.`,
+`Halo support, saya minta banding nomor ([NOMOR]) yang terblokir. Saya tidak spam. Terima kasih.`,
+`Kepada tim WhatsApp, nomor ([NOMOR]) saya diblokir. Saya hanya share foto keluarga. Mohon dibuka kembali.`,
+`Selamat malam, saya banding akun ([NOMOR]). Saya tidak melanggar aturan. Mohon bantu buka blokirnya.`,
+`Halo WhatsApp, nomor ([NOMOR]) saya terblokir tanpa alasan jelas. Mohon ditinjau kembali. Terima kasih.`,
+`Tim support, saya minta banding untuk akun ([NOMOR]). Saya hanya chat dengan pelanggan. Mohon dibuka.`,
+`Halo, akun ([NOMOR]) saya diblokir permanen. Saya tidak pernah spam. Mohon bantu buka blokirnya.`,
+`Kepada WhatsApp, saya banding nomor ([NOMOR]). Saya hanya kirim pesan ke keluarga. Mohon dibuka kembali.`,
+`Selamat siang tim WhatsApp, akun ([NOMOR]) saya terblokir. Saya tidak melanggar. Mohon ditinjau.`,
+`Halo support WhatsApp, nomor ([NOMOR]) saya diblokir. Saya hanya chat biasa. Mohon bantu buka.`,
+`Tim WhatsApp, saya minta banding akun ([NOMOR]) yang terblokir. Saya tidak spam. Terima kasih.`,
+`Halo, nomor ([NOMOR]) saya diblokir permanen. Saya hanya chat dengan saudara. Mohon dibuka kembali.`,
+`Kepada tim support, saya banding untuk nomor ([NOMOR]). Saya tidak melanggar aturan. Mohon ditinjau.`,
+`Selamat pagi, akun ([NOMOR]) saya terblokir. Saya hanya share undangan ke teman. Mohon bantu buka.`,
+`Halo WhatsApp, saya minta banding nomor ([NOMOR]). Saya tidak pernah spam. Mohon dibuka kembali.`,
+`Tim support WhatsApp, akun ([NOMOR]) saya diblokir. Saya hanya chat dengan keluarga. Mohon ditinjau.`,
+`Halo, saya banding untuk nomor ([NOMOR]) yang terblokir. Saya tidak melanggar. Mohon bantu buka blokirnya.`,
+`Kepada WhatsApp, nomor ([NOMOR]) saya diblokir permanen. Saya hanya chat biasa. Mohon dibuka kembali.`,
+`Selamat malam tim WhatsApp, saya banding akun ([NOMOR]). Saya tidak spam. Terima kasih.`,
+`Halo support, akun ([NOMOR]) saya terblokir tanpa alasan. Saya hanya chat dengan teman. Mohon dibuka.`,
+`Tim WhatsApp, saya minta banding nomor ([NOMOR]). Saya tidak melanggar aturan. Mohon ditinjau kembali.`,
+
+/* ---------- MOYENS (30) ---------- */
+`Halo tim WhatsApp, saya mengajukan banding untuk nomor ([NOMOR]) yang diblokir permanen. Saya tidak pernah melakukan spam atau pelanggaran. Saya hanya mengirim pesan ke 12 kontak keluarga soal acara syukuran rumah baru. Mohon ditinjau kembali, karena akun ini sangat penting untuk komunikasi sehari-hari. Terima kasih.`,
+`Selamat pagi tim support WhatsApp. Saya banding untuk akun ([NOMOR]) yang terblokir. Saya pedagang online kecil, akun ini saya pakai untuk komunikasi dengan pelanggan setiap hari. Saya tidak pernah mengirim pesan massal, hanya membalas chat pembeli satu per satu. Blokir ini sangat merugikan usaha saya. Mohon bantu buka kembali.`,
+`Kepada tim WhatsApp, saya ingin mengajukan banding atas nomor ([NOMOR]) yang diblokir. Saya ibu rumah tangga, akun ini dipakai untuk komunikasi dengan suami dan anak yang sedang kuliah di luar kota. Saya tidak tahu apa kesalahan saya, karena saya hanya chat biasa setiap hari. Mohon kebijaksanaannya untuk membuka blokir. Terima kasih.`,
+`Halo WhatsApp Support, saya banding untuk nomor ([NOMOR]). Saya karyawan swasta yang butuh WhatsApp untuk koordinasi kerja setiap hari. Saya tidak pernah melanggar aturan, hanya chat dengan rekan kerja dan atasan. Blokir ini membuat saya tidak bisa bekerja dengan baik. Mohon ditinjau kembali dan dibuka. Terima kasih.`,
+`Selamat siang tim WhatsApp. Saya mengajukan banding untuk akun ([NOMOR]) yang diblokir permanen. Saya hanya mengirim undangan pernikahan adik saya ke 15 kontak keluarga dan teman dekat. Saya tidak berniat spam sama sekali. Setelah itu akun saya langsung diblokir. Mohon bantu buka blokirnya karena acara pernikahan sudah dekat. Terima kasih.`,
+`Halo tim support, saya banding nomor ([NOMOR]). Saya mahasiswa yang butuh WhatsApp untuk komunikasi dengan dosen dan grup kelas. Saya tidak pernah mengirim pesan massal, hanya chat biasa dengan teman kampus. Blokir ini membuat saya ketinggalan informasi kuliah. Mohon bantu buka kembali. Terima kasih.`,
+`Kepada WhatsApp, saya mengajukan banding untuk akun ([NOMOR]) yang terblokir. Saya pemilik warung kecil, akun ini dipakai untuk menerima pesanan pelanggan. Saya tidak pernah spam, hanya membalas chat satu per satu. Blokir ini bikin usaha saya sepi. Mohon bantu buka blokirnya. Terima kasih.`,
+`Halo tim WhatsApp, saya banding untuk nomor ([NOMOR]). Saya guru, akun ini dipakai untuk komunikasi dengan siswa dan orang tua murid. Saya tidak pernah melanggar aturan, hanya mengirim tugas dan pengumuman ke grup kelas. Blokir ini sangat mengganggu pekerjaan saya. Mohon ditinjau kembali. Terima kasih.`,
+`Selamat malam tim support, saya mengajukan banding untuk akun ([NOMOR]). Saya hanya mengirim pesan ke 10 teman soal acara kumpul keluarga. Tidak ada niat spam sama sekali. Saya tidak tahu kenapa langsung diblokir permanen. Mohon bantu buka blokirnya, akun ini penting untuk komunikasi sehari-hari. Terima kasih.`,
+`Kepada tim WhatsApp, saya banding nomor ([NOMOR]). Saya driver ojek online, akun ini dipakai untuk komunikasi dengan pelanggan dan koordinasi dengan kantor. Saya tidak pernah spam, hanya chat biasa. Blokir ini membuat saya susah cari rezeki. Mohon bantu buka kembali. Terima kasih.`,
+`Halo WhatsApp Support, saya mengajukan banding untuk nomor ([NOMOR]). Saya hanya share link undangan pernikahan ke teman kantor, tidak ada niat spam. Saya tidak tahu kenapa langsung diblokir. Mohon ditinjau kembali dan dibuka blokirnya. Akun ini sangat penting untuk kerja saya. Terima kasih.`,
+`Selamat pagi tim WhatsApp, saya banding untuk akun ([NOMOR]) yang terblokir. Saya baru beli nomor ini dan langsung diblokir. Mungkin ada kesalahan sistem. Saya tidak pernah melanggar aturan, hanya chat biasa dengan teman. Mohon bantu buka blokirnya. Terima kasih.`,
+`Kepada WhatsApp, saya mengajukan banding untuk nomor ([NOMOR]). Saya hanya mengirim pesan ke keluarga soal acara syukuran. Tidak ada spam. Saya tidak tahu kenapa diblokir permanen. Mohon ditinjau kembali, karena akun ini penting untuk komunikasi dengan keluarga besar. Terima kasih.`,
+`Halo tim support WhatsApp, saya banding akun ([NOMOR]). Saya hanya chat dengan saudara soal acara pernikahan. Tidak ada niat spam. Blokir ini membuat saya tidak bisa mengabarkan acara penting ke keluarga. Mohon bantu buka kembali. Terima kasih.`,
+`Selamat siang tim WhatsApp. Saya mengajukan banding untuk nomor ([NOMOR]). Saya hanya share foto acara keluarga ke grup kecil. Saya tidak pernah spam. Mohon ditinjau kembali dan dibuka blokirnya. Akun ini sangat penting untuk komunikasi sehari-hari. Terima kasih.`,
+`Kepada WhatsApp Support, saya banding nomor ([NOMOR]) yang terblokir. Saya hanya mengirim pesan ke 15 kontak soal undangan pernikahan. Tidak ada niat spam. Mohon bantu buka blokirnya, karena acara sudah dekat dan saya butuh akun ini untuk komunikasi. Terima kasih.`,
+`Halo tim WhatsApp, saya mengajukan banding untuk akun ([NOMOR]). Saya hanya chat dengan teman kerja soal proyek kantor. Tidak ada pelanggaran. Blokir ini sangat mengganggu pekerjaan saya. Mohon ditinjau kembali dan dibuka. Terima kasih.`,
+`Selamat malam tim support, saya banding untuk nomor ([NOMOR]). Saya hanya share link undangan syukuran ke saudara. Tidak ada niat spam. Mohon bantu buka blokirnya, akun ini penting untuk komunikasi keluarga. Terima kasih.`,
+`Kepada WhatsApp, saya mengajukan banding untuk akun ([NOMOR]) yang diblokir. Saya hanya chat dengan pelanggan toko saya. Tidak pernah spam. Blokir ini membuat usaha saya rugi. Mohon ditinjau kembali. Terima kasih.`,
+`Halo tim WhatsApp, saya banding nomor ([NOMOR]). Saya hanya mengirim pesan ke teman soal acara kumpul. Tidak ada niat spam. Mohon bantu buka blokirnya, karena akun ini penting untuk komunikasi sehari-hari. Terima kasih.`,
+`Selamat pagi tim support, saya mengajukan banding untuk akun ([NOMOR]). Saya hanya chat dengan keluarga besar soal acara syukuran. Tidak ada pelanggaran. Mohon ditinjau kembali dan dibuka blokirnya. Terima kasih.`,
+`Kepada WhatsApp Support, saya banding untuk nomor ([NOMOR]) yang terblokir. Saya hanya share foto keluarga ke grup kecil. Tidak ada niat spam. Mohon bantu buka blokirnya, akun ini sangat penting untuk komunikasi. Terima kasih.`,
+`Halo tim WhatsApp, saya mengajukan banding untuk akun ([NOMOR]). Saya hanya chat dengan teman kantor soal pekerjaan. Tidak ada pelanggaran. Blokir ini sangat mengganggu. Mohon ditinjau kembali. Terima kasih.`,
+`Selamat siang tim support, saya banding nomor ([NOMOR]). Saya hanya mengirim undangan pernikahan ke 12 kontak. Tidak ada niat spam. Mohon bantu buka blokirnya, acara sudah dekat. Terima kasih.`,
+`Kepada WhatsApp, saya mengajukan banding untuk akun ([NOMOR]). Saya hanya chat dengan pelanggan warung saya. Tidak pernah spam. Blokir ini bikin usaha sepi. Mohon ditinjau kembali. Terima kasih.`,
+`Halo tim WhatsApp, saya banding untuk nomor ([NOMOR]). Saya hanya share link undangan syukuran ke saudara. Tidak ada niat spam. Mohon bantu buka blokirnya, akun ini penting untuk keluarga. Terima kasih.`,
+`Selamat malam tim support, saya mengajukan banding untuk akun ([NOMOR]). Saya hanya chat dengan teman soal acara kumpul. Tidak ada pelanggaran. Mohon ditinjau kembali dan dibuka blokirnya. Terima kasih.`,
+`Kepada WhatsApp Support, saya banding nomor ([NOMOR]). Saya hanya mengirim pesan ke keluarga soal acara pernikahan. Tidak ada niat spam. Mohon bantu buka blokirnya, akun ini sangat penting. Terima kasih.`,
+`Halo tim WhatsApp, saya mengajukan banding untuk akun ([NOMOR]). Saya hanya chat dengan rekan kerja soal proyek. Tidak ada pelanggaran. Blokir ini mengganggu pekerjaan. Mohon ditinjau kembali. Terima kasih.`,
+`Selamat pagi tim support, saya banding untuk nomor ([NOMOR]). Saya hanya share foto acara keluarga ke grup kecil. Tidak ada niat spam. Mohon bantu buka blokirnya. Terima kasih.`,
+`Kepada WhatsApp, saya mengajukan banding untuk akun ([NOMOR]). Saya hanya chat dengan pelanggan toko online saya. Tidak pernah spam. Blokir ini merugikan usaha. Mohon ditinjau kembali. Terima kasih.`,
+
+/* ---------- LONGS (20) ---------- */
+`Halo tim dukungan WhatsApp yang terhormat, saya mengajukan banding atas nomor ([NOMOR]) yang telah diblokir permanen oleh pihak WhatsApp. Saya benar-benar tidak melakukan pelanggaran apa pun. Kronologinya begini: dua hari yang lalu saya sedang menghubungi keluarga besar saya sekitar 10 sampai 15 kontak untuk memberi kabar soal acara pernikahan saya yang akan digelar bulan depan. Saya mengirim pesan satu per satu, bukan broadcast, bukan spam. Tiba-tiba saja akun saya terblokir dengan alasan spam. Setelah saya tunggu sekitar 7 jam, statusnya berubah menjadi blokir permanen. Saya sangat sedih dan bingung, karena akun ini sudah saya pakai bertahun-tahun untuk komunikasi dengan keluarga, teman, dan pekerjaan. Saya mohon dengan sangat agar pihak WhatsApp meninjau kembali kasus saya dan membuka blokir akun ([NOMOR]) ini. Saya berjanji tidak akan melanggar aturan ke depannya. Terima kasih atas perhatiannya.`,
+`Kepada tim WhatsApp Support, saya ingin mengajukan banding untuk akun ([NOMOR]) yang diblokir permanen. Saya adalah pedagang online kecil yang sudah 3 tahun berjualan melalui WhatsApp. Akun ini adalah sumber penghasilan utama saya. Saya tidak pernah mengirim pesan massal atau spam. Saya hanya membalas chat pembeli satu per satu, mengirim foto produk, dan mengonfirmasi pesanan. Tiba-tiba kemarin akun saya diblokir tanpa peringatan. Saya tidak tahu apa kesalahan saya. Saya sudah coba kirim email tapi belum ada balasan. Saya mohon dengan hormat agar akun ([NOMOR]) saya dibuka kembali, karena kalau tidak, saya kehilangan mata pencaharian. Saya siap mematuhi semua aturan WhatsApp. Terima kasih.`,
+`Assalamualaikum tim WhatsApp yang terhormat. Saya mengajukan banding untuk nomor ([NOMOR]) yang diblokir permanen. Saya ibu rumah tangga dengan 3 anak, dan akun WhatsApp ini adalah satu-satunya alat komunikasi saya dengan suami yang bekerja di luar kota dan anak saya yang kuliah di luar pulau. Saya tidak pernah mengirim pesan massal, tidak pernah spam, dan tidak pernah membagikan konten terlarang. Saya hanya chat biasa setiap hari dengan keluarga. Kemarin saya mengirim undangan syukuran rumah baru ke sekitar 12 saudara, dan tiba-tiba akun saya diblokir. Saya sangat terpukul karena tidak bisa menghubungi anak dan suami saya. Mohon dengan sangat agar pihak WhatsApp membuka blokir akun ([NOMOR]) saya. Saya tidak tahu harus bagaimana lagi. Terima kasih atas kebijaksanaannya.`,
+`Halo tim WhatsApp, saya mengajukan banding untuk akun ([NOMOR]) yang terblokir permanen. Saya karyawan swasta di sebuah perusahaan logistik, dan WhatsApp adalah alat kerja utama saya untuk koordinasi dengan tim dan atasan. Saya tidak pernah melanggar aturan, tidak pernah spam, dan tidak pernah mengirim konten yang dilarang. Saya hanya chat dengan rekan kerja soal proyek, mengirim file dokumen, dan koordinasi harian. Tiba-tiba kemarin akun saya diblokir tanpa alasan yang jelas. Saya sudah coba cek email tapi tidak ada peringatan sebelumnya. Blokir ini sangat merugikan saya karena saya jadi tidak bisa bekerja dengan baik. Saya mohon dengan hormat agar akun ([NOMOR]) saya ditinjau kembali dan dibuka blokirnya. Saya berjanji akan mematuhi semua aturan. Terima kasih.`,
+`Kepada tim dukungan WhatsApp, saya banding untuk nomor ([NOMOR]) yang diblokir permanen. Saya seorang guru SMA, dan akun ini saya pakai untuk komunikasi dengan siswa, orang tua murid, dan rekan guru. Saya tidak pernah mengirim pesan massal yang bersifat spam. Saya hanya mengirim tugas, pengumuman kelas, dan materi pelajaran ke grup kelas. Kemarin saya mengirim undangan pernikahan adik saya ke 15 kontak teman dan keluarga. Setelah itu akun saya langsung diblokir. Saya sangat bingung dan sedih, karena akun ini sangat penting untuk pekerjaan saya sebagai guru. Mohon dengan sangat agar pihak WhatsApp meninjau kembali dan membuka blokir akun ([NOMOR]) saya. Saya tidak berniat melanggar aturan. Terima kasih atas perhatiannya.`,
+`Halo tim WhatsApp Support, saya mengajukan banding untuk akun ([NOMOR]) yang diblokir permanen. Saya adalah mahasiswa semester 5 yang sangat bergantung pada WhatsApp untuk komunikasi dengan dosen, grup kelas, dan organisasi kampus. Saya tidak pernah mengirim pesan spam atau melanggar aturan. Saya hanya chat biasa dengan teman kampus, mengirim file tugas, dan berdiskusi di grup kelas. Kemarin saya mengirim undangan acara kampus ke 10 teman. Tiba-tiba akun saya diblokir. Saya sangat terpukul karena besok ada ujian dan saya butuh WhatsApp untuk koordinasi. Mohon dengan hormat agar akun ([NOMOR]) saya dibuka kembali. Saya siap mematuhi semua aturan WhatsApp. Terima kasih.`,
+`Kepada WhatsApp, saya mengajukan banding untuk nomor ([NOMOR]) yang diblokir permanen. Saya pemilik warung makan kecil, dan akun ini saya pakai untuk menerima pesanan pelanggan, mengirim menu, dan konfirmasi pesanan. Saya tidak pernah spam, hanya membalas chat satu per satu. Kemarin saya mengirim pesan ke 10 pelanggan lama soal promo menu baru. Setelah itu akun saya diblokir. Saya sangat bingung, karena saya tidak merasa melanggar aturan. Blokir ini membuat usaha saya sepi dan saya kehilangan pelanggan. Mohon dengan sangat agar pihak WhatsApp membuka blokir akun ([NOMOR]) saya. Saya berjanji tidak akan mengirim pesan massal lagi. Terima kasih.`,
+`Halo tim dukungan WhatsApp, saya banding untuk akun ([NOMOR]) yang terblokir permanen. Saya driver ojek online, dan akun ini saya pakai untuk komunikasi dengan pelanggan, koordinasi dengan kantor, dan menerima orderan. Saya tidak pernah melanggar aturan, tidak pernah spam. Saya hanya chat biasa dengan pelanggan soal titik jemput dan antar. Kemarin saya mengirim pesan ke 12 pelanggan lama soal jam operasional saya yang berubah. Tiba-tiba akun saya diblokir. Saya sangat terpukul karena ini sumber penghasilan saya. Mohon dengan hormat agar akun ([NOMOR]) saya dibuka kembali. Saya siap mematuhi aturan. Terima kasih.`,
+`Kepada tim WhatsApp Support, saya mengajukan banding untuk nomor ([NOMOR]) yang diblokir permanen. Saya karyawan di sebuah bank, dan akun WhatsApp ini saya pakai untuk komunikasi dengan nasabah dan rekan kerja. Saya tidak pernah mengirim pesan spam atau konten terlarang. Saya hanya chat biasa, mengirim dokumen kerja, dan koordinasi harian. Kemarin saya mengirim pesan ke 10 nasabah soal jadwal layanan. Setelah itu akun saya diblokir. Saya sangat bingung, karena saya tidak merasa melanggar aturan. Blokir ini sangat merugikan pekerjaan saya. Mohon dengan sangat agar akun ([NOMOR]) saya ditinjau kembali dan dibuka. Terima kasih.`,
+`Halo tim WhatsApp, saya banding untuk akun ([NOMOR]) yang diblokir permanen. Saya seorang perawat di rumah sakit, dan akun ini saya pakai untuk komunikasi dengan pasien, keluarga pasien, dan rekan kerja. Saya tidak pernah spam. Saya hanya chat biasa soal jadwal kontrol dan koordinasi kerja. Kemarin saya mengirim pesan ke 15 keluarga pasien soal jadwal vaksinasi. Tiba-tiba akun saya diblokir. Saya sangat terpukul karena akun ini sangat penting untuk pekerjaan saya. Mohon dengan hormat agar pihak WhatsApp membuka blokir akun ([NOMOR]) saya. Saya siap mematuhi aturan. Terima kasih.`,
+`Kepada tim dukungan WhatsApp, saya mengajukan banding untuk nomor ([NOMOR]) yang terblokir permanen. Saya seorang freelancer desain grafis, dan akun ini saya pakai untuk komunikasi dengan klien, mengirim file desain, dan koordinasi proyek. Saya tidak pernah spam atau melanggar aturan. Saya hanya chat biasa dengan klien satu per satu. Kemarin saya mengirim pesan ke 12 klien soal portofolio baru saya. Setelah itu akun saya diblokir. Saya sangat bingung dan sedih, karena ini sumber penghasilan saya. Mohon dengan sangat agar akun ([NOMOR]) saya dibuka kembali. Saya berjanji tidak akan mengirim pesan massal lagi. Terima kasih.`,
+`Halo tim WhatsApp Support, saya banding untuk akun ([NOMOR]) yang diblokir permanen. Saya seorang bidan desa, dan akun ini saya pakai untuk komunikasi dengan ibu hamil, keluarga pasien, dan koordinasi dengan puskesmas. Saya tidak pernah spam. Saya hanya chat biasa soal jadwal kontrol dan konsultasi. Kemarin saya mengirim pesan ke 10 ibu hamil soal jadwal posyandu. Tiba-tiba akun saya diblokir. Saya sangat terpukul karena akun ini sangat penting untuk pekerjaan saya. Mohon dengan hormat agar pihak WhatsApp membuka blokir akun ([NOMOR]) saya. Saya siap mematuhi aturan. Terima kasih.`,
+`Kepada WhatsApp, saya mengajukan banding untuk nomor ([NOMOR]) yang diblokir permanen. Saya seorang petani, dan akun ini saya pakai untuk komunikasi dengan tengkulak, kelompok tani, dan keluarga. Saya tidak pernah spam. Saya hanya chat biasa soal harga panen dan koordinasi kelompok. Kemarin saya mengirim pesan ke 10 anggota kelompok tani soal jadwal panen. Setelah itu akun saya diblokir. Saya sangat bingung, karena saya tidak merasa melanggar aturan. Blokir ini membuat saya susah koordinasi. Mohon dengan sangat agar akun ([NOMOR]) saya dibuka kembali. Terima kasih.`,
+`Halo tim dukungan WhatsApp, saya banding untuk akun ([NOMOR]) yang terblokir permanen. Saya seorang nelayan, dan akun ini saya pakai untuk komunikasi dengan pembeli ikan, kelompok nelayan, dan keluarga. Saya tidak pernah spam. Saya hanya chat biasa soal harga ikan dan jadwal melaut. Kemarin saya mengirim pesan ke 12 pembeli soal hasil tangkapan baru. Tiba-tiba akun saya diblokir. Saya sangat terpukul karena ini sumber penghasilan saya. Mohon dengan hormat agar pihak WhatsApp membuka blokir akun ([NOMOR]) saya. Saya siap mematuhi aturan. Terima kasih.`,
+`Kepada tim WhatsApp Support, saya mengajukan banding untuk nomor ([NOMOR]) yang diblokir permanen. Saya seorang penjahit, dan akun ini saya pakai untuk komunikasi dengan pelanggan, menerima pesanan, dan konfirmasi jahitan. Saya tidak pernah spam. Saya hanya chat biasa dengan pelanggan satu per satu. Kemarin saya mengirim pesan ke 10 pelanggan lama soal promo jahitan. Setelah itu akun saya diblokir. Saya sangat bingung, karena saya tidak merasa melanggar aturan. Blokir ini membuat usaha saya sepi. Mohon dengan sangat agar akun ([NOMOR]) saya dibuka kembali. Terima kasih.`,
+`Halo tim WhatsApp, saya banding untuk akun ([NOMOR]) yang diblokir permanen. Saya seorang montir bengkel, dan akun ini saya pakai untuk komunikasi dengan pelanggan, konfirmasi servis, dan koordinasi dengan supplier. Saya tidak pernah spam. Saya hanya chat biasa dengan pelanggan satu per satu. Kemarin saya mengirim pesan ke 12 pelanggan soal jadwal servis. Tiba-tiba akun saya diblokir. Saya sangat terpukul karena ini sumber penghasilan saya. Mohon dengan hormat agar pihak WhatsApp membuka blokir akun ([NOMOR]) saya. Saya siap mematuhi aturan. Terima kasih.`,
+`Kepada tim dukungan WhatsApp, saya mengajukan banding untuk nomor ([NOMOR]) yang terblokir permanen. Saya seorang guru les privat, dan akun ini saya pakai untuk komunikasi dengan murid, orang tua murid, dan koordinasi jadwal les. Saya tidak pernah spam. Saya hanya chat biasa dengan murid satu per satu. Kemarin saya mengirim pesan ke 10 orang tua murid soal jadwal les baru. Setelah itu akun saya diblokir. Saya sangat bingung dan sedih, karena ini sumber penghasilan saya. Mohon dengan sangat agar akun ([NOMOR]) saya dibuka kembali. Terima kasih.`,
+`Halo tim WhatsApp Support, saya banding untuk akun ([NOMOR]) yang diblokir permanen. Saya seorang karyawan toko online, dan akun ini saya pakai untuk komunikasi dengan pembeli, konfirmasi pesanan, dan koordinasi dengan gudang. Saya tidak pernah spam. Saya hanya chat biasa dengan pembeli satu per satu. Kemarin saya mengirim pesan ke 15 pembeli soal pengiriman barang. Tiba-tiba akun saya diblokir. Saya sangat terpukul karena ini pekerjaan saya. Mohon dengan hormat agar pihak WhatsApp membuka blokir akun ([NOMOR]) saya. Saya siap mematuhi aturan. Terima kasih.`,
+`Kepada WhatsApp, saya mengajukan banding untuk nomor ([NOMOR]) yang diblokir permanen. Saya seorang pekerja konstruksi, dan akun ini saya pakai untuk komunikasi dengan mandor, rekan kerja, dan keluarga. Saya tidak pernah spam. Saya hanya chat biasa soal jadwal kerja dan koordinasi proyek. Kemarin saya mengirim pesan ke 10 rekan kerja soal jadwal shift. Setelah itu akun saya diblokir. Saya sangat bingung, karena saya tidak merasa melanggar aturan. Blokir ini membuat saya susah koordinasi. Mohon dengan sangat agar akun ([NOMOR]) saya dibuka kembali. Terima kasih.`
+];
+
+function getRandomDeban(nomor){
+  const idx = Math.floor(Math.random() * DEBAN_TEMPLATES.length);
+  return DEBAN_TEMPLATES[idx].replace(/\[NOMOR\]/g, nomor);
+}
+
+/* ================= FORM LOGIC ================= */
+const sendBtn = document.getElementById('sendBtn');
+const statusEl = document.getElementById('statusArea');
+const nomorInput = document.getElementById('numero');
+const alasanSelect = document.getElementById('alasan');
+function enc(v){ return encodeURIComponent(v || ''); }
+function isAndroid(){ return /Android/i.test(navigator.userAgent); }
+function setStatus(t){ statusEl.textContent = t; }
+function normalizeNumber(n){ if(!n) return n; const s=n.trim().replace(/\s+/g,''); if(/^[0][0-9]+$/.test(s)) return '242'+s.slice(1); if(/^\+/.test(s)) return s; return s; }
+function buildTemplate(nomor, alasan){
+  const tampilNomor = (nomor.startsWith('+')||nomor.startsWith('242'))? nomor:('+'+nomor);
+  const body = getRandomDeban(tampilNomor);
+  const subject = alasan === "Opsi Permanen" 
+    ? '[Banding WhatsApp] Permohonan Pembukaan Blokir Permanen' 
+    : '[Banding WhatsApp] Permohonan Tinjau Ulang Blokir Spam';
+  return { to: 'support@whatsapp.com', subject, body };
+}
+function buildIntentUrl(t){return `intent://compose?to=${enc(t.to)}&subject=${enc(t.subject)}&body=${enc(t.body)}#Intent;scheme=mailto;package=com.google.android.gm;end`;}
+function buildMailtoUrl(t){return `mailto:${enc(t.to)}?subject=${enc(t.subject)}&body=${enc(t.body)}`;}
+function buildGmailWebUrl(t){return `https://mail.google.com/mail/?view=cm&fs=1&to=${enc(t.to)}&su=${enc(t.subject)}&body=${enc(t.body)}`;}
+sendBtn.addEventListener('click',()=>{
+  let nomor=(nomorInput.value||'').trim();
+  const alasan=(alasanSelect.value||'').trim();
+  if(!nomor||!alasan){setStatus('Mohon isi nomor & pilih alasan.');return;}
+  nomor=normalizeNumber(nomor);
+  const tpl=buildTemplate(nomor,alasan);
+  const intentUrl=buildIntentUrl(tpl), mailtoUrl=buildMailtoUrl(tpl), gmailWebUrl=buildGmailWebUrl(tpl);
+  sendBtn.disabled=true; sendBtn.setAttribute('aria-busy','true');
+  if(isAndroid()){
+    setStatus('Mencoba membuka Gmail app...');
+    try { window.location.href = intentUrl; } catch(e){}
+    let handled=false;
+    const fallback = ()=>{
+      if(handled) return;
+      handled=true;
+      setStatus('Gagal buka Gmail app. Membuka email default...');
+      try { window.location.href = mailtoUrl; } catch(e){ 
+        setStatus('Gagal buka app email. Membuka Gmail web...');
+        try{ window.open(gmailWebUrl,'_blank'); } catch(err){ setStatus('Gagal membuka opsi email.'); }
+      }
+      sendBtn.disabled=false; sendBtn.removeAttribute('aria-busy');
+    };
+    const onVisChange = ()=>{
+      if(document.hidden){
+        handled=true;
+        setStatus('Compose terbuka di aplikasi Gmail.');
+        sendBtn.disabled=false; sendBtn.removeAttribute('aria-busy');
+      }
+    };
+    document.addEventListener('visibilitychange', onVisChange, {once:true});
+    setTimeout(()=>{ if(!handled) fallback(); },1200);
+  } else {
+    setStatus('Membuka aplikasi email...');
+    try{
+      window.location.href = mailtoUrl;
+      setTimeout(()=>{
+        if(!document.hidden){
+          setStatus('Jika tidak terbuka, membuka Gmail web...');
+          try{ const w = window.open(gmailWebUrl,'_blank'); if(!w) setStatus('Popup diblok. Periksa aplikasi email.'); } catch(e){ setStatus('Gagal membuka Gmail web.'); }
+        }
+        sendBtn.disabled=false; sendBtn.removeAttribute('aria-busy');
+      },900);
+    } catch(err){
+      setStatus('Gagal membuka aplikasi email. Membuka Gmail web...');
+      try{ window.open(gmailWebUrl,'_blank'); } catch(e){ setStatus('Gagal membuka Gmail web.'); }
+      sendBtn.disabled=false; sendBtn.removeAttribute('aria-busy');
+    }
+  }
+});
+
+/* ================= Sidebar handlers ================= */
+document.getElementById('menuToggle').addEventListener('click', ()=>{
+  document.getElementById('sidebarMenu').classList.toggle('active');
+  document.getElementById('overlay').classList.toggle('active');
+});
+document.getElementById('overlay').addEventListener('click', ()=>{
+  document.getElementById('sidebarMenu').classList.remove('active');
+  document.getElementById('overlay').classList.remove('active');
+});
+document.getElementById('contactToggle').addEventListener('click', ()=>{
+  document.getElementById('contactSubmenu').classList.toggle('show');
+});
+document.getElementById('infoToggle').addEventListener('click', ()=>{
+  document.getElementById('infoSubmenu').classList.toggle('show');
+});
+document.getElementById('jasaToggle').addEventListener('click', ()=>{
+  document.getElementById('jasaSubmenu').classList.toggle('show');
+});
+</script>
+  <audio id="bg-music" loop>
+  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+  Browser kamu tidak mendukung audio.
+</audio>
+</body>
+</html>
